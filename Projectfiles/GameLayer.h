@@ -16,6 +16,10 @@
     float whiteShipPointsPerSecY;
     CCArray *_shipLasers;
     int _nextShipLaser;
+    CCArray *_enemyShips;
+    int nextShip;
+    double nextShipSpawn;
+    int _lives;
 }
 
 @end
