@@ -8,7 +8,8 @@
 
 #import "GameLayer.h"
 #define kNumLasers      5
-#define kNumBlackShips 10
+#define kNumBlackShips 20
+
 
 @implementation GameLayer
 
@@ -16,31 +17,14 @@
 {
     if( (self=[super init]))
     {
+        
         batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ikaruga.png"];
         [self addChild: batchNode];
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile: @"Ikaruga.plist"];
-        
-        whiteShip = [CCSprite spriteWithSpriteFrameName: @"WhiteShip.png"];
-        CGSize winSize = [CCDirector sharedDirector].winSize;
-        whiteShip.position = ccp(winSize.width*0.1, winSize.height * 0.5);
-        [batchNode addChild: whiteShip z:1];
+        [self spawnShip];
         [self scheduleUpdate];
-        
-        _enemyShips = [[CCArray alloc] initWithCapacity:kNumBlackShips];
-        for(int i = 0; i < kNumBlackShips; ++i) {
-            CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
-            enemy.visible = NO;
-            [batchNode addChild:enemy];
-            [_enemyShips addObject:enemy];
-        }
-        
-        _shipLasers = [[CCArray alloc] initWithCapacity:kNumLasers];
-        for(int i = 0; i < kNumLasers; ++i) {
-            CCSprite *shipLaser = [CCSprite spriteWithSpriteFrameName:@"WhiteProjectile.png"];
-            shipLaser.visible = NO;
-            [batchNode addChild:shipLaser];
-            [_shipLasers addObject:shipLaser];
-        }
+        [self spawnEnemy];
+        [self spawnLasers];
         
         self.isTouchEnabled = YES;
         
@@ -49,6 +33,40 @@
     return self;
 }
 
+//Spawns the player's Ship
+-(void)spawnShip
+{
+    currentShip = [CCSprite spriteWithSpriteFrameName: @"WhiteShip.png"];
+    CGSize winSize = [CCDirector sharedDirector].winSize;
+    currentShip.position = ccp(winSize.width*0.1, winSize.height * 0.5);
+    [batchNode addChild: currentShip];
+}
+
+//Spawns all the enemies.
+-(void)spawnEnemy
+{
+    _enemyShips = [[CCArray alloc] initWithCapacity:kNumBlackShips];
+    for(int i = 0; i < kNumBlackShips; ++i) {
+        CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
+        enemy.visible = NO;
+        [batchNode addChild:enemy];
+        [_enemyShips addObject:enemy];
+    }
+}
+
+//Spawns the lasers
+-(void)spawnLasers
+{
+    _shipLasers = [[CCArray alloc] initWithCapacity:kNumLasers];
+    for(int i = 0; i < kNumLasers; ++i) {
+        CCSprite *shipLaser = [CCSprite spriteWithSpriteFrameName:@"WhiteProjectile.png"];
+        shipLaser.visible = NO;
+        [batchNode addChild:shipLaser];
+        [_shipLasers addObject:shipLaser];
+    }
+}
+
+//Useres accelerometer to control the ship
 - (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
     
 #define kFilteringFactor 0.1
@@ -72,7 +90,7 @@
     float accelFraction = accelDiff / kMaxDiffX;
     float pointsPerSec = kShipMaxPointsPerSec * accelFraction;
     
-    whiteShipPointsPerSecY = pointsPerSec;
+    currentShipPointsPerSecY = pointsPerSec;
     
 }
 
@@ -85,12 +103,12 @@
 {
     
     CGSize winSize = [CCDirector sharedDirector].winSize;
-    float maxY = winSize.height - whiteShip.contentSize.height/2;
-    float minY = whiteShip.contentSize.height/2;
+    float maxY = winSize.height - currentShip.contentSize.height/2;
+    float minY = currentShip.contentSize.height/2;
     
-    float newY = whiteShip.position.y + (whiteShipPointsPerSecY * dt);
+    float newY = currentShip.position.y + (currentShipPointsPerSecY * dt);
     newY = MIN(MAX(newY, minY), maxY);
-    whiteShip.position = ccp(whiteShip.position.x, newY);
+    currentShip.position = ccp(currentShip.position.x, newY);
     
     double curTime = CACurrentMediaTime();
     if (curTime > nextShipSpawn)
@@ -129,9 +147,9 @@ for (CCSprite *enemy in _enemyShips) {
         }
     }
     
-    if (CGRectIntersectsRect(whiteShip.boundingBox, enemy.boundingBox)) {
+    if (CGRectIntersectsRect(currentShip.boundingBox, enemy.boundingBox)) {
         enemy.visible = NO;
-        [whiteShip runAction:[CCBlink actionWithDuration:1.0 blinks:9]];
+        [currentShip runAction:[CCBlink actionWithDuration:1.0 blinks:9]];
         _lives--;
     }
 }
@@ -146,7 +164,7 @@ for (CCSprite *enemy in _enemyShips) {
     _nextShipLaser++;
     if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
     
-    shipLaser.position = ccpAdd(whiteShip.position, ccp(shipLaser.contentSize.width/2, 0));
+    shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
     shipLaser.visible = YES;
     [shipLaser stopAllActions];
     [shipLaser runAction:[CCSequence actions:

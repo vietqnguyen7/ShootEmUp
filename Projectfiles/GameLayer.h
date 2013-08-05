@@ -10,10 +10,10 @@
 
 @interface GameLayer : CCLayer
 {
-    CCSprite *whiteShip;
+    CCSprite *currentShip;
     CCSprite *blackShip;
     CCSpriteBatchNode *batchNode;
-    float whiteShipPointsPerSecY;
+    float currentShipPointsPerSecY;
     CCArray *_shipLasers;
     int _nextShipLaser;
     CCArray *_enemyShips;
