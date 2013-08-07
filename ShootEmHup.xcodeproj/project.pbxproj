@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		31A3D22617B2C4E40028F39F /* Ships.plist in Resources */ = {isa = PBXBuildFile; fileRef = 31A3D22417B2C4E40028F39F /* Ships.plist */; };
+		31A3D22717B2C4E40028F39F /* Ships.png in Resources */ = {isa = PBXBuildFile; fileRef = 31A3D22517B2C4E40028F39F /* Ships.png */; };
 		31C2E8EB17AAFAF4000194DF /* Ikaruga.plist in Resources */ = {isa = PBXBuildFile; fileRef = 31C2E8E917AAFAF4000194DF /* Ikaruga.plist */; };
 		31C2E8EC17AAFAF4000194DF /* Ikaruga.png in Resources */ = {isa = PBXBuildFile; fileRef = 31C2E8EA17AAFAF4000194DF /* Ikaruga.png */; };
 		31C2E8F017AAFB52000194DF /* GameLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31C2E8EF17AAFB52000194DF /* GameLayer.mm */; };
@@ -65,6 +67,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		31A3D22417B2C4E40028F39F /* Ships.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Ships.plist; sourceTree = "<group>"; };
+		31A3D22517B2C4E40028F39F /* Ships.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Ships.png; sourceTree = "<group>"; };
 		31C2E8E917AAFAF4000194DF /* Ikaruga.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Ikaruga.plist; sourceTree = "<group>"; };
 		31C2E8EA17AAFAF4000194DF /* Ikaruga.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Ikaruga.png; sourceTree = "<group>"; };
 		31C2E8EE17AAFB52000194DF /* GameLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameLayer.h; sourceTree = "<group>"; };
@@ -290,6 +294,8 @@
 		DCC1A39413A94F1A005BD75D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				31A3D22417B2C4E40028F39F /* Ships.plist */,
+				31A3D22517B2C4E40028F39F /* Ships.png */,
 				31C2E8E917AAFAF4000194DF /* Ikaruga.plist */,
 				31C2E8EA17AAFAF4000194DF /* Ikaruga.png */,
 				DC193EBE13B6969B00500B56 /* David Gervais Tilesets */,
@@ -407,6 +413,8 @@
 				DC2721B1160CB01100D88944 /* Default-568h@2x.png in Resources */,
 				31C2E8EB17AAFAF4000194DF /* Ikaruga.plist in Resources */,
 				31C2E8EC17AAFAF4000194DF /* Ikaruga.png in Resources */,
+				31A3D22617B2C4E40028F39F /* Ships.plist in Resources */,
+				31A3D22717B2C4E40028F39F /* Ships.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

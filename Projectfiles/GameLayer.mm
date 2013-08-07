@@ -7,8 +7,11 @@
 //
 
 #import "GameLayer.h"
-#define kNumLasers      5
-#define kNumBlackShips 20
+#define kNumShips 20
+int ship = 1;
+int kNumLasers = 15;
+int points = 0;
+int touch = 1;
 
 
 @implementation GameLayer
@@ -18,12 +21,12 @@
     if( (self=[super init]))
     {
         
-        batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ikaruga.png"];
+        batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ships.png"];
         [self addChild: batchNode];
-        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile: @"Ikaruga.plist"];
+        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile: @"Ships.plist"];
         [self spawnShip];
         [self scheduleUpdate];
-        [self spawnEnemy];
+        [self spawnEnemyShip];
         [self spawnLasers];
         
         self.isTouchEnabled = YES;
@@ -36,21 +39,39 @@
 //Spawns the player's Ship
 -(void)spawnShip
 {
-    currentShip = [CCSprite spriteWithSpriteFrameName: @"WhiteShip.png"];
+    currentShip = [CCSprite spriteWithSpriteFrameName: @"WhitePlayerShip.png"];
     CGSize winSize = [CCDirector sharedDirector].winSize;
     currentShip.position = ccp(winSize.width*0.1, winSize.height * 0.5);
     [batchNode addChild: currentShip];
 }
 
+
 //Spawns all the enemies.
--(void)spawnEnemy
+-(void)spawnEnemyShip
 {
-    _enemyShips = [[CCArray alloc] initWithCapacity:kNumBlackShips];
-    for(int i = 0; i < kNumBlackShips; ++i) {
-        CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
-        enemy.visible = NO;
-        [batchNode addChild:enemy];
-        [_enemyShips addObject:enemy];
+    _enemyShipsColor = [[NSMutableArray alloc] initWithCapacity:kNumShips];
+    _enemyShips = [[CCArray alloc] initWithCapacity:kNumShips];
+    for(int i = 0; i < kNumShips; ++i)
+    {
+        float whiteOrBlack = [self randomValueBetween:1.0 andValue: 2.0];
+        if(whiteOrBlack <= 1.5)
+        {
+            int color = 1;
+            CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
+            enemy.visible = NO;
+            [batchNode addChild:enemy];
+            [_enemyShips addObject:enemy];
+            [_enemyShipsColor addObject:[NSNumber numberWithInt:color]];
+        }
+        else
+        {
+            int color = 2;
+            CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"WhiteShip.png"];
+            enemy.visible = NO;
+            [batchNode addChild:enemy];
+            [_enemyShips addObject:enemy];
+            [_enemyShipsColor addObject:[NSNumber numberWithInt:color]];
+        }
     }
 }
 
@@ -66,7 +87,7 @@
     }
 }
 
-//Useres accelerometer to control the ship
+//Uses accelerometer to control the ship
 - (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
     
 #define kFilteringFactor 0.1
@@ -101,7 +122,6 @@
 
 - (void)update:(ccTime)dt
 {
-    
     CGSize winSize = [CCDirector sharedDirector].winSize;
     float maxY = winSize.height - currentShip.contentSize.height/2;
     float minY = currentShip.contentSize.height/2;
@@ -143,11 +163,13 @@ for (CCSprite *enemy in _enemyShips) {
         if (CGRectIntersectsRect(shipLaser.boundingBox, enemy.boundingBox)) {
             shipLaser.visible = NO;
             enemy.visible = NO;
+            points = 100;
             continue;
         }
     }
     
-    if (CGRectIntersectsRect(currentShip.boundingBox, enemy.boundingBox)) {
+    if (CGRectIntersectsRect(currentShip.boundingBox, enemy.boundingBox))
+    {
         enemy.visible = NO;
         [currentShip runAction:[CCBlink actionWithDuration:1.0 blinks:9]];
         _lives--;
@@ -157,6 +179,17 @@ for (CCSprite *enemy in _enemyShips) {
 
 - (void)ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if(touch == 1)
+    {
+        ship++;
+        touch++;
+        [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackPlayerShip.png"]];
+    }
+    else{
+        ship--;
+        touch--;
+        [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];
+    }
     
     CGSize winSize = [CCDirector sharedDirector].winSize;
     

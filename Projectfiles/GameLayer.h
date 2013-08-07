@@ -17,6 +17,7 @@
     CCArray *_shipLasers;
     int _nextShipLaser;
     CCArray *_enemyShips;
+    NSMutableArray *_enemyShipsColor;
     int nextShip;
     double nextShipSpawn;
     int _lives;
