@@ -23,7 +23,7 @@ local config =
 		DisplayFPS = YES,
 
 		EnableUserInteraction = YES,
-		EnableMultiTouch = NO,
+		EnableMultiTouch = No,
 
 		-- Render settings
 		DefaultTexturePixelFormat = TexturePixelFormat.RGBA8888,

@@ -8,10 +8,10 @@
 
 #import "GameLayer.h"
 #define kNumShips 20
-int ship = 1;
-int kNumLasers = 15;
-int points = 0;
-int touch = 1;
+int ship = 1; //Determines the player's Color. White = 1. Black = 2.
+int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
+int points = 0;//Total points gained.
+int touch = 1;// Records which number the touch is at to determine what color player's ship is.
 
 
 @implementation GameLayer
@@ -53,6 +53,7 @@ int touch = 1;
     _enemyShips = [[CCArray alloc] initWithCapacity:kNumShips];
     for(int i = 0; i < kNumShips; ++i)
     {
+        //Randomizes the color between white and black.
         float whiteOrBlack = [self randomValueBetween:1.0 andValue: 2.0];
         if(whiteOrBlack <= 1.5)
         {
@@ -79,7 +80,8 @@ int touch = 1;
 -(void)spawnLasers
 {
     _shipLasers = [[CCArray alloc] initWithCapacity:kNumLasers];
-    for(int i = 0; i < kNumLasers; ++i) {
+    for(int i = 0; i < kNumLasers; ++i)
+    {
         CCSprite *shipLaser = [CCSprite spriteWithSpriteFrameName:@"WhiteProjectile.png"];
         shipLaser.visible = NO;
         [batchNode addChild:shipLaser];
@@ -122,6 +124,58 @@ int touch = 1;
 
 - (void)update:(ccTime)dt
 {
+    //Changes ship color if pressed on left. If on right then shoots a laser.
+    KKInput* input = [KKInput sharedInput];
+    CGPoint pos = [input locationOfAnyTouchInPhase:KKTouchPhaseAny];
+    
+    if ([KKInput sharedInput].anyTouchBeganThisFrame)
+    {
+        //Changes color if pressed on the left side of the screen.
+        if(pos.x < 240 )
+        {
+            
+            if(touch == 1)
+            {
+                ship++;
+                touch++;
+                [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackPlayerShip.png"]];
+            }//changes to black
+            else
+            {
+                ship--;
+                touch--;
+                [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];   
+            }//changes to white
+        }//end if to see if it will change color.
+        //Shoots a laser if shot on the right side of the screen.
+        else
+        {
+            CGSize winSize = [CCDirector sharedDirector].winSize;
+        
+            CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
+            _nextShipLaser++;
+            if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
+            if(ship == 1)
+            {
+                [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhiteProjectile.png"]];
+            }//Changes the laser color to white.
+            else
+            {
+                [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackProjectile.png"]];
+            }//Changes the laser color to black.
+            
+            shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
+            shipLaser.visible = YES;
+            [shipLaser stopAllActions];
+            [shipLaser runAction:[CCSequence actions:
+                              [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
+                              [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
+                              nil]];
+        }//ends the else to see if it will shoot a laser.
+    }//Ends the touch phase
+    
+    
+    //Updates the ships location.
     CGSize winSize = [CCDirector sharedDirector].winSize;
     float maxY = winSize.height - currentShip.contentSize.height/2;
     float minY = currentShip.contentSize.height/2;
@@ -130,6 +184,7 @@ int touch = 1;
     newY = MIN(MAX(newY, minY), maxY);
     currentShip.position = ccp(currentShip.position.x, newY);
     
+    //Spawns the Enemy.
     double curTime = CACurrentMediaTime();
     if (curTime > nextShipSpawn)
     {
@@ -151,61 +206,34 @@ int touch = 1;
                              [CCMoveBy actionWithDuration:randDuration position:ccp(-winSize.width-enemy.contentSize.width, 0)],
                              [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
                              nil]];
-    }
+    }//ends if for spawning enemies.
     
-    //collision
-for (CCSprite *enemy in _enemyShips) {
-    if (!enemy.visible) continue;
+    //Collision
+    for (CCSprite *enemy in _enemyShips)
+    {
+        if (!enemy.visible) continue;
     
-    for (CCSprite *shipLaser in _shipLasers) {
-        if (!shipLaser.visible) continue;
+        for (CCSprite *shipLaser in _shipLasers)
+        {
+            if (!shipLaser.visible) continue;
         
-        if (CGRectIntersectsRect(shipLaser.boundingBox, enemy.boundingBox)) {
-            shipLaser.visible = NO;
+            if (CGRectIntersectsRect(shipLaser.boundingBox, enemy.boundingBox))
+            {
+                shipLaser.visible = NO;
+                enemy.visible = NO;
+                points += 100;
+                continue;
+            }//end if to see if the laser hits the enemy.
+        }//end for to see if theres any lasers being shot.
+    
+        if (CGRectIntersectsRect(currentShip.boundingBox, enemy.boundingBox))
+        {
             enemy.visible = NO;
-            points = 100;
-            continue;
-        }
-    }
-    
-    if (CGRectIntersectsRect(currentShip.boundingBox, enemy.boundingBox))
-    {
-        enemy.visible = NO;
-        [currentShip runAction:[CCBlink actionWithDuration:1.0 blinks:9]];
-        _lives--;
-    }
-}
-}
-
-- (void)ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if(touch == 1)
-    {
-        ship++;
-        touch++;
-        [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackPlayerShip.png"]];
-    }
-    else{
-        ship--;
-        touch--;
-        [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];
-    }
-    
-    CGSize winSize = [CCDirector sharedDirector].winSize;
-    
-    CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
-    _nextShipLaser++;
-    if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
-    
-    shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
-    shipLaser.visible = YES;
-    [shipLaser stopAllActions];
-    [shipLaser runAction:[CCSequence actions:
-                          [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
-                          [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
-                          nil]];
-    
-}
+            //   [currentShip runAction:[CCBlink actionWithDuration:1.0 blinks:9]];
+            //   _lives--;
+        }//end if to see if player ship collides with enemys
+    }//end for loop for collision
+}//ends the update
 
 - (void)setInvisible:(CCNode *)node
 {
