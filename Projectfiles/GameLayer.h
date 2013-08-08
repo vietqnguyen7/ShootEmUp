@@ -23,6 +23,7 @@
     int _lives;
     CCLabelTTF *scoreLabel;
     CCLabelTTF *shotsLabel;
+    CCLabelTTF *lifeLabel;
 }
 
 @end
