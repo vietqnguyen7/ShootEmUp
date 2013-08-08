@@ -11,8 +11,8 @@
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
-int life = 5;
-int shots = 5;
+int life = 5;//Amount of life you have.
+int shots = 5;//Amount of shots you have.
 
 
 @implementation GameLayer
@@ -25,6 +25,12 @@ int shots = 5;
         batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ships.png"];
         [self addChild: batchNode];
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile: @"Ships.plist"];
+        scoreLabel = [CCLabelTTF labelWithString:@"Score:" fontName:@"Arial" fontSize:24];
+        shotsLabel = [CCLabelTTF labelWithString:@"Shots:" fontName:@"Arial" fontSize:24];
+        scoreLabel.position = ccp(400,280);
+        shotsLabel.position = ccp(400,250);
+        [self addChild:scoreLabel z:1];
+        [self addChild:shotsLabel z:1];
         [self spawnShip];
         [self scheduleUpdate];
         [self spawnEnemyShip];
@@ -159,6 +165,8 @@ int shots = 5;
         {
             if(shots > 0)
             {
+                shots--;
+                [shotsLabel setString:[NSString stringWithFormat:@"%i", shots]];
                 CGSize winSize = [CCDirector sharedDirector].winSize;
         
                 CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
@@ -180,7 +188,6 @@ int shots = 5;
                               [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
                               [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
                               nil]];
-                shots--;
             }
             
         }//ends the else to see if it will shoot a laser.
@@ -234,6 +241,7 @@ int shots = 5;
                 shipLaser.visible = NO;
                 enemy.visible = NO;
                 points += 100;
+                [scoreLabel setString:[NSString stringWithFormat:@"%i", points]];
                 continue;
             }//end if to see if the laser hits the enemy.
         }//end for to see if theres any lasers being shot.
@@ -247,11 +255,15 @@ int shots = 5;
             {
                 life++;
                 shots++;
-                printf("%i",shots);
+                points+=100;
+                [scoreLabel setString:[NSString stringWithFormat:@"%i", points]];
+                [shotsLabel setString:[NSString stringWithFormat:@"%i", shots]];
             }
             else
             {
                 life--;
+                points-=300;
+                [scoreLabel setString:[NSString stringWithFormat:@"%i", points]];
             }
             
         }//end if to see if player ship collides with enemys

@@ -21,6 +21,8 @@
     int nextShip;
     double nextShipSpawn;
     int _lives;
+    CCLabelTTF *scoreLabel;
+    CCLabelTTF *shotsLabel;
 }
 
 @end
