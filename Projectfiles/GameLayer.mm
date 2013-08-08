@@ -11,7 +11,8 @@
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
-int touch = 1;// Records which number the touch is at to determine what color player's ship is.
+int life = 5;
+int shots = 5;
 
 
 @implementation GameLayer
@@ -20,7 +21,7 @@ int touch = 1;// Records which number the touch is at to determine what color pl
 {
     if( (self=[super init]))
     {
-        
+        [self initBG];
         batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ships.png"];
         [self addChild: batchNode];
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile: @"Ships.plist"];
@@ -34,6 +35,14 @@ int touch = 1;// Records which number the touch is at to determine what color pl
     }
     
     return self;
+}
+
+-(void)initBG
+{
+    CGSize winSize = [[CCDirector sharedDirector] winSize];
+    CCSprite *background = [CCSprite spriteWithFile:@"tempbackground.png"];
+    background.position = ccp(winSize.width/2, winSize.height/2);
+    [self addChild:background];
 }
 
 //Spawns the player's Ship
@@ -58,7 +67,7 @@ int touch = 1;// Records which number the touch is at to determine what color pl
         if(whiteOrBlack <= 1.5)
         {
             int color = 1;
-            CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
+            CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"WhiteShip.png"];
             enemy.visible = NO;
             [batchNode addChild:enemy];
             [_enemyShips addObject:enemy];
@@ -67,7 +76,7 @@ int touch = 1;// Records which number the touch is at to determine what color pl
         else
         {
             int color = 2;
-            CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"WhiteShip.png"];
+            CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
             enemy.visible = NO;
             [batchNode addChild:enemy];
             [_enemyShips addObject:enemy];
@@ -134,43 +143,46 @@ int touch = 1;// Records which number the touch is at to determine what color pl
         if(pos.x < 240 )
         {
             
-            if(touch == 1)
+            if(ship == 1)
             {
                 ship++;
-                touch++;
                 [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackPlayerShip.png"]];
             }//changes to black
             else
             {
                 ship--;
-                touch--;
                 [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];   
             }//changes to white
         }//end if to see if it will change color.
-        //Shoots a laser if shot on the right side of the screen.
+        //Shoots a laser if tapped on the right side of the screen.
         else
         {
-            CGSize winSize = [CCDirector sharedDirector].winSize;
+            if(shots > 0)
+            {
+                CGSize winSize = [CCDirector sharedDirector].winSize;
         
-            CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
-            _nextShipLaser++;
-            if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
-            if(ship == 1)
-            {
-                [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhiteProjectile.png"]];
-            }//Changes the laser color to white.
-            else
-            {
-                [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackProjectile.png"]];
-            }//Changes the laser color to black.
+                CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
+                _nextShipLaser++;
+                if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
+                if(ship == 1)
+                {
+                    [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhiteProjectile.png"]];
+                }//Changes the laser color to white.
+                else
+                {
+                    [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackProjectile.png"]];
+                }//Changes the laser color to black.
             
-            shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
-            shipLaser.visible = YES;
-            [shipLaser stopAllActions];
-            [shipLaser runAction:[CCSequence actions:
+                shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
+                shipLaser.visible = YES;
+                [shipLaser stopAllActions];
+                [shipLaser runAction:[CCSequence actions:
                               [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
                               [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
                               nil]];
+                shots--;
+            }
+            
         }//ends the else to see if it will shoot a laser.
     }//Ends the touch phase
     
@@ -229,8 +241,19 @@ int touch = 1;// Records which number the touch is at to determine what color pl
         if (CGRectIntersectsRect(currentShip.boundingBox, enemy.boundingBox))
         {
             enemy.visible = NO;
-            //   [currentShip runAction:[CCBlink actionWithDuration:1.0 blinks:9]];
-            //   _lives--;
+            int enemyInt = [_enemyShips indexOfObject:(enemy)];
+            NSInteger colorOfEnemy = [[_enemyShipsColor objectAtIndex:(enemyInt)] integerValue];
+            if(ship == colorOfEnemy)
+            {
+                life++;
+                shots++;
+                printf("%i",shots);
+            }
+            else
+            {
+                life--;
+            }
+            
         }//end if to see if player ship collides with enemys
     }//end for loop for collision
 }//ends the update

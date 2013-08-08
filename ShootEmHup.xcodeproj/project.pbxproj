@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		31A0C6C017B4082E005D25B8 /* tempbackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 31A0C6BF17B4082E005D25B8 /* tempbackground.png */; };
 		31A3D22617B2C4E40028F39F /* Ships.plist in Resources */ = {isa = PBXBuildFile; fileRef = 31A3D22417B2C4E40028F39F /* Ships.plist */; };
 		31A3D22717B2C4E40028F39F /* Ships.png in Resources */ = {isa = PBXBuildFile; fileRef = 31A3D22517B2C4E40028F39F /* Ships.png */; };
 		31C2E8EB17AAFAF4000194DF /* Ikaruga.plist in Resources */ = {isa = PBXBuildFile; fileRef = 31C2E8E917AAFAF4000194DF /* Ikaruga.plist */; };
@@ -67,6 +68,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		31A0C6BF17B4082E005D25B8 /* tempbackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tempbackground.png; sourceTree = "<group>"; };
 		31A3D22417B2C4E40028F39F /* Ships.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Ships.plist; sourceTree = "<group>"; };
 		31A3D22517B2C4E40028F39F /* Ships.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Ships.png; sourceTree = "<group>"; };
 		31C2E8E917AAFAF4000194DF /* Ikaruga.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Ikaruga.plist; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 		DCC1A39413A94F1A005BD75D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				31A0C6BF17B4082E005D25B8 /* tempbackground.png */,
 				31A3D22417B2C4E40028F39F /* Ships.plist */,
 				31A3D22517B2C4E40028F39F /* Ships.png */,
 				31C2E8E917AAFAF4000194DF /* Ikaruga.plist */,
@@ -415,6 +418,7 @@
 				31C2E8EC17AAFAF4000194DF /* Ikaruga.png in Resources */,
 				31A3D22617B2C4E40028F39F /* Ships.plist in Resources */,
 				31A3D22717B2C4E40028F39F /* Ships.png in Resources */,
+				31A0C6C017B4082E005D25B8 /* tempbackground.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
