@@ -11,7 +11,7 @@
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
-int life = 5;//Amount of life you have.
+int life = 3;//Amount of life you have.
 int shots = 5;//Amount of shots you have.
 
 
@@ -30,8 +30,7 @@ int shots = 5;//Amount of shots you have.
         [self scheduleUpdate];
         [self spawnEnemyShip];
         [self spawnLasers];
-        
-        self.isTouchEnabled = YES;
+        self.accelerometerEnabled = YES;
         
     }
     
@@ -42,7 +41,7 @@ int shots = 5;//Amount of shots you have.
 {
     scoreLabel = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
     shotsLabel = [CCLabelTTF labelWithString:@"Shots: 5" fontName:@"Arial" fontSize:24];
-    lifeLabel = [CCLabelTTF labelWithString:@"Life: 5" fontName:@"Arial" fontSize:24];
+    lifeLabel = [CCLabelTTF labelWithString:@"Life: 3" fontName:@"Arial" fontSize:24];
     lifeLabel.position =ccp(400,280);
     scoreLabel.position = ccp(400,310);
     shotsLabel.position = ccp(400,250);
@@ -121,15 +120,15 @@ int shots = 5;//Amount of shots you have.
 #define kShipMaxPointsPerSec (winSize.height*0.5)
 #define kMaxDiffX 0.2
     
-    UIAccelerationValue rollingX, rollingY, rollingZ;
+    UIAccelerationValue rollingX;
     
     rollingX = (acceleration.x * kFilteringFactor) + (rollingX * (1.0 - kFilteringFactor));
-    rollingY = (acceleration.y * kFilteringFactor) + (rollingY * (1.0 - kFilteringFactor));
-    rollingZ = (acceleration.z * kFilteringFactor) + (rollingZ * (1.0 - kFilteringFactor));
+    //rollingY = (acceleration.y * kFilteringFactor) + (rollingY * (1.0 - kFilteringFactor));
+    //rollingZ = (acceleration.z * kFilteringFactor) + (rollingZ * (1.0 - kFilteringFactor));
     
     float accelX = acceleration.x - rollingX;
-    float accelY = acceleration.y - rollingY;
-    float accelZ = acceleration.z - rollingZ;
+    //float accelY = acceleration.y - rollingY;
+    //float accelZ = acceleration.z - rollingZ;
     
     CGSize winSize = [CCDirector sharedDirector].winSize;
     
@@ -145,6 +144,12 @@ int shots = 5;//Amount of shots you have.
     return (((float) arc4random() / 0xFFFFFFFFu) * (high - low)) + low;
 }
 
+-(void)updateHUD
+{
+    [scoreLabel setString:[NSString stringWithFormat:@"Score: %i", points]];
+    [shotsLabel setString:[NSString stringWithFormat:@"Shots: %i", shots]];
+    [lifeLabel setString:[NSString stringWithFormat:@"Life: %i", life]];
+}
 
 - (void)update:(ccTime)dt
 {
@@ -175,7 +180,7 @@ int shots = 5;//Amount of shots you have.
             if(shots > 0)
             {
                 shots--;
-                [shotsLabel setString:[NSString stringWithFormat:@"Shots: %i", shots]];
+                [self updateHUD];
                 CGSize winSize = [CCDirector sharedDirector].winSize;
         
                 CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
@@ -217,11 +222,11 @@ int shots = 5;//Amount of shots you have.
     if (curTime > nextShipSpawn)
     {
         
-        float randSecs = [self randomValueBetween:0.20 andValue:1.0];
+        float randSecs = [self randomValueBetween:0.20 andValue:.50];
         nextShipSpawn = randSecs + curTime;
         
         float randY = [self randomValueBetween:0.0 andValue:winSize.height];
-        float randDuration = [self randomValueBetween:2.0 andValue:10.0];
+        float randDuration = [self randomValueBetween:1.0 andValue:3.0];
         
         CCSprite *enemy = [_enemyShips objectAtIndex:nextShip];
         nextShip++;
@@ -250,7 +255,7 @@ int shots = 5;//Amount of shots you have.
                 shipLaser.visible = NO;
                 enemy.visible = NO;
                 points += 100;
-                [scoreLabel setString:[NSString stringWithFormat:@"Score: %i", points]];
+                [self updateHUD];
                 continue;
             }//end if to see if the laser hits the enemy.
         }//end for to see if theres any lasers being shot.
@@ -262,19 +267,15 @@ int shots = 5;//Amount of shots you have.
             NSInteger colorOfEnemy = [[_enemyShipsColor objectAtIndex:(enemyInt)] integerValue];
             if(ship == colorOfEnemy)
             {
-                life++;
                 shots++;
                 points+=100;
-                [scoreLabel setString:[NSString stringWithFormat:@"Score: %i", points]];
-                [shotsLabel setString:[NSString stringWithFormat:@"Shots: %i", shots]];
-                [lifeLabel setString:[NSString stringWithFormat:@"Life: %i", life]];
+                [self updateHUD];
             }
             else
             {
                 life--;
                 points-=300;
-                [scoreLabel setString:[NSString stringWithFormat:@"Score: %i", points]];
-                [lifeLabel setString:[NSString stringWithFormat:@"Life: %i", life]];
+                [self updateHUD];
             }
             
         }//end if to see if player ship collides with enemys

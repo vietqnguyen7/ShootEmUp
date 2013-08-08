@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DCC1A25913A94EE6005BD75D"
-               BuildableName = "ShootEmHup-Mac.app"
-               BlueprintName = "ShootEmHup-Mac"
+               BlueprintIdentifier = "DCC1A0E213A94ED5005BD75D"
+               BuildableName = "ShootEmHup-iOS.app"
+               BlueprintName = "ShootEmHup-iOS"
                ReferencedContainer = "container:ShootEmHup.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -73,9 +73,9 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DCC1A25913A94EE6005BD75D"
-            BuildableName = "ShootEmHup-Mac.app"
-            BlueprintName = "ShootEmHup-Mac"
+            BlueprintIdentifier = "DCC1A0E213A94ED5005BD75D"
+            BuildableName = "ShootEmHup-iOS.app"
+            BlueprintName = "ShootEmHup-iOS"
             ReferencedContainer = "container:ShootEmHup.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
