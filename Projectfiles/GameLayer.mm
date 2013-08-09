@@ -5,8 +5,9 @@
 //  Created by Viet Nguyen on 8/1/13.
 //
 //
-
+#define PTM_RATIO 32.0
 #import "GameLayer.h"
+#import "Box2D.h"
 #define kNumShips 100
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
@@ -21,6 +22,12 @@ int shots = 5;//Amount of shots you have.
 {
     if( (self=[super init]))
     {
+        b2Vec2 gravity = b2Vec2(0.0f, 0.0f);
+        bool doSleep = false;
+        _world = new b2World(gravity);
+        _world->SetAllowSleeping(doSleep);
+        _contactListener = new ContactListener();
+        _world->SetContactListener(_contactListener);
         [self initBG];
         batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ships.png"];
         [self addChild: batchNode];
@@ -30,6 +37,7 @@ int shots = 5;//Amount of shots you have.
         [self scheduleUpdate];
         [self spawnEnemyShip];
         [self spawnLasers];
+        [self schedule:@selector(tick:)];
         self.accelerometerEnabled = YES;
         
     }
@@ -37,17 +45,64 @@ int shots = 5;//Amount of shots you have.
     return self;
 }
 
+- (void)spriteDone:(id)sender {
+    
+    CCSprite *sprite = (CCSprite *)sender;
+    
+    b2Body *spriteBody = NULL;
+    for(b2Body *b = _world->GetBodyList(); b; b=b->GetNext()) {
+        if (b->GetUserData() != NULL) {
+            CCSprite *curSprite = (__bridge CCSprite *)b->GetUserData();
+            if (sprite == curSprite) {
+                spriteBody = b;
+                break;
+            }
+        }
+    }
+    if (spriteBody != NULL) {
+        _world->DestroyBody(spriteBody);
+    }
+    
+    [batchNode removeChild:sprite cleanup:YES];
+    
+}
+
+- (void)addBoxBodyForSprite:(CCSprite *)sprite
+{
+    
+    b2BodyDef spriteBodyDef;
+    spriteBodyDef.type = b2_dynamicBody;
+    spriteBodyDef.position.Set(sprite.position.x/PTM_RATIO,
+                               sprite.position.y/PTM_RATIO);
+    spriteBodyDef.userData = (__bridge void*)sprite;
+    b2Body *spriteBody = _world->CreateBody(&spriteBodyDef);
+    
+    b2PolygonShape spriteShape;
+    //spriteShape.SetAsBox(sprite.contentSize.width/PTM_RATIO/2,
+    //                     sprite.contentSize.height/PTM_RATIO/2);
+    
+    b2FixtureDef spriteShapeDef;
+    spriteShapeDef.shape = &spriteShape;
+    spriteShapeDef.density = 10.0;
+    spriteShapeDef.isSensor = true;
+    spriteBody->CreateFixture(&spriteShapeDef);
+    
+}
+
 -(void)initHUD
 {
     scoreLabel = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
     shotsLabel = [CCLabelTTF labelWithString:@"Shots: 5" fontName:@"Arial" fontSize:24];
     lifeLabel = [CCLabelTTF labelWithString:@"Life: 3" fontName:@"Arial" fontSize:24];
+    distanceLabel = [CCLabelTTF labelWithString:@"" fontName:@"Arial" fontSize:24];
     lifeLabel.position =ccp(400,280);
     scoreLabel.position = ccp(400,310);
     shotsLabel.position = ccp(400,250);
+    distanceLabel.position = ccp(400,30);
     [self addChild:scoreLabel z:1];
     [self addChild:shotsLabel z:1];
     [self addChild:lifeLabel z:1];
+    [self addChild:distanceLabel z:1];
 
 }
 
@@ -65,6 +120,8 @@ int shots = 5;//Amount of shots you have.
     currentShip = [CCSprite spriteWithSpriteFrameName: @"WhitePlayerShip.png"];
     CGSize winSize = [CCDirector sharedDirector].winSize;
     currentShip.position = ccp(winSize.width*0.1, winSize.height * 0.5);
+    currentShip.tag = 1;
+    [self addBoxBodyForSprite:currentShip];
     [batchNode addChild: currentShip];
 }
 
@@ -83,6 +140,8 @@ int shots = 5;//Amount of shots you have.
             int color = 1;
             CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"WhiteShip.png"];
             enemy.visible = NO;
+            enemy.tag = 2;
+            [self addBoxBodyForSprite:enemy];
             [batchNode addChild:enemy];
             [_enemyShips addObject:enemy];
             [_enemyShipsColor addObject:[NSNumber numberWithInt:color]];
@@ -92,6 +151,8 @@ int shots = 5;//Amount of shots you have.
             int color = 2;
             CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
             enemy.visible = NO;
+            enemy.tag = 2;
+            [self addBoxBodyForSprite:enemy];
             [batchNode addChild:enemy];
             [_enemyShips addObject:enemy];
             [_enemyShipsColor addObject:[NSNumber numberWithInt:color]];
@@ -150,6 +211,8 @@ int shots = 5;//Amount of shots you have.
     [shotsLabel setString:[NSString stringWithFormat:@"Shots: %i", shots]];
     [lifeLabel setString:[NSString stringWithFormat:@"Life: %i", life]];
 }
+
+
 
 - (void)update:(ccTime)dt
 {
@@ -221,11 +284,11 @@ int shots = 5;//Amount of shots you have.
     double curTime = CACurrentMediaTime();
     if (curTime > nextShipSpawn)
     {
-        float randSecs = [self randomValueBetween:0.10 andValue:.15];
+        float randSecs = [self randomValueBetween:0.10 andValue:.50];
         nextShipSpawn = randSecs + curTime;
         
         float randY = [self randomValueBetween:0.0 andValue:winSize.height];
-        float randDuration = [self randomValueBetween:(5.0) andValue:(10.0)];
+        float randDuration = [self randomValueBetween:(2.0) andValue:(10.0)];
         
         CCSprite *enemy = [_enemyShips objectAtIndex:nextShip];
         nextShip++;
@@ -280,6 +343,59 @@ int shots = 5;//Amount of shots you have.
         }//end if to see if player ship collides with enemys
     }//end for loop for collision
 }//ends the update
+
+- (void)tick:(ccTime)dt
+{
+    
+    _world->Step(dt, 10, 10);
+    for(b2Body *b = _world->GetBodyList(); b; b=b->GetNext())
+    {
+        if (b->GetUserData() != NULL)
+        {
+            CCSprite *sprite = (__bridge CCSprite *)b->GetUserData();
+            
+            b2Vec2 b2Position = b2Vec2(sprite.position.x/PTM_RATIO,
+                                       sprite.position.y/PTM_RATIO);
+            float32 b2Angle = -1 * CC_DEGREES_TO_RADIANS(sprite.rotation);
+            
+            b->SetTransform(b2Position, b2Angle);
+        }
+    }
+        
+        b2Body *bodyA = contact.fixtureA->GetBody();
+        b2Body *bodyB = contact.fixtureB->GetBody();
+        if (bodyA->GetUserData() != NULL && bodyB->GetUserData() != NULL) {
+            CCSprite *spriteA = (CCSprite *) bodyA->GetUserData();
+            CCSprite *spriteB = (CCSprite *) bodyB->GetUserData();
+            
+            if (spriteA.tag == 1 && spriteB.tag == 2) {
+                toDestroy.push_back(bodyA);
+            } else if (spriteA.tag == 2 && spriteB.tag == 1) {
+                toDestroy.push_back(bodyB);
+            }
+        }
+    }
+    
+    std::vector<b2Body *>::iterator pos2;
+    for(pos2 = toDestroy.begin(); pos2 != toDestroy.end(); ++pos2) {
+        b2Body *body = *pos2;
+        if (body->GetUserData() != NULL) {
+            CCSprite *sprite = (CCSprite *) body->GetUserData();
+            [_spriteSheet removeChild:sprite cleanup:YES];
+        }
+        _world->DestroyBody(body);
+    }
+    
+    
+}
+
+- (void)dealloc {
+    
+    delete _world;
+    delete _contactListener;
+    [batchNode release];
+    [super dealloc];
+}
 
 - (void)setInvisible:(CCNode *)node
 {

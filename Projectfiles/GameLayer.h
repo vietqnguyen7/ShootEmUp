@@ -7,6 +7,9 @@
 //
 
 #import "CCLayer.h"
+#import "Box2D.h"
+#import "ContactListener.h"
+#import "SimpleAudioEngine.h"
 
 @interface GameLayer : CCLayer
 {
@@ -24,6 +27,9 @@
     CCLabelTTF *scoreLabel;
     CCLabelTTF *shotsLabel;
     CCLabelTTF *lifeLabel;
+    CCLabelTTF *distanceLabel;
+    b2World *_world;
+    ContactListener *_contactListener;
 }
 
 @end
