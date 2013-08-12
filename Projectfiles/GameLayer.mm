@@ -113,33 +113,6 @@ int shots = 5;//Amount of shots you have.
     }
 }
 
-//Uses accelerometer to control the ship
-- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
-    
-#define kFilteringFactor 0.1
-#define kRestAccelX -0.6
-#define kShipMaxPointsPerSec (winSize.height*0.5)
-#define kMaxDiffX 0.2
-    
-    UIAccelerationValue rollingX;
-    
-    rollingX = (acceleration.x * kFilteringFactor) + (rollingX * (1.0 - kFilteringFactor));
-    //rollingY = (acceleration.y * kFilteringFactor) + (rollingY * (1.0 - kFilteringFactor));
-    //rollingZ = (acceleration.z * kFilteringFactor) + (rollingZ * (1.0 - kFilteringFactor));
-    
-    float accelX = acceleration.x - rollingX;
-    //float accelY = acceleration.y - rollingY;
-    //float accelZ = acceleration.z - rollingZ;
-    
-    CGSize winSize = [CCDirector sharedDirector].winSize;
-    
-    float accelDiff = accelX - kRestAccelX;
-    float accelFraction = accelDiff / kMaxDiffX;
-    float pointsPerSec = kShipMaxPointsPerSec * accelFraction;
-    
-    currentShipPointsPerSecY = pointsPerSec;
-    
-}
 
 - (float)randomValueBetween:(float)low andValue:(float)high {
     return (((float) arc4random() / 0xFFFFFFFFu) * (high - low)) + low;
@@ -233,12 +206,6 @@ int shots = 5;//Amount of shots you have.
     
     //Updates the ships location.
     CGSize winSize = [CCDirector sharedDirector].winSize;
-    float maxY = winSize.height - currentShip.contentSize.height/2;
-    float minY = currentShip.contentSize.height/2;
-    
-    float newY = currentShip.position.y + (currentShipPointsPerSecY * dt);
-    newY = MIN(MAX(newY, minY), maxY);
-    currentShip.position = ccp(currentShip.position.x, newY);
     
     //Spawns the Enemy.
     double curTime = CACurrentMediaTime();

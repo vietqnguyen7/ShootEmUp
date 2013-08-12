@@ -15,7 +15,6 @@
     CCSprite *currentShip;
     CCSprite *blackShip;
     CCSpriteBatchNode *batchNode;
-    float currentShipPointsPerSecY;
     CCArray *_shipLasers;
     int _nextShipLaser;
     CCArray *_enemyShips;
