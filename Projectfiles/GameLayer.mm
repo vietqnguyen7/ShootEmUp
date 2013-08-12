@@ -7,8 +7,12 @@
 //
 #define PTM_RATIO 32.0
 #import "GameLayer.h"
+<<<<<<< HEAD
 #import "Box2D.h"
 #define kNumShips 100
+=======
+#define kNumShips 20
+>>>>>>> parent of b12b71a... Tweaked reuploaded
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
@@ -284,11 +288,20 @@ int shots = 5;//Amount of shots you have.
     double curTime = CACurrentMediaTime();
     if (curTime > nextShipSpawn)
     {
+<<<<<<< HEAD
         float randSecs = [self randomValueBetween:0.10 andValue:.50];
         nextShipSpawn = randSecs + curTime;
         
         float randY = [self randomValueBetween:0.0 andValue:winSize.height];
         float randDuration = [self randomValueBetween:(2.0) andValue:(10.0)];
+=======
+        
+        float randSecs = [self randomValueBetween:0.20 andValue:.50];
+        nextShipSpawn = randSecs + curTime;
+        
+        float randY = [self randomValueBetween:0.0 andValue:winSize.height];
+        float randDuration = [self randomValueBetween:1.0 andValue:3.0];
+>>>>>>> parent of b12b71a... Tweaked reuploaded
         
         CCSprite *enemy = [_enemyShips objectAtIndex:nextShip];
         nextShip++;
