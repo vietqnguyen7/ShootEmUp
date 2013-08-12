@@ -5,14 +5,9 @@
 //  Created by Viet Nguyen on 8/1/13.
 //
 //
-#define PTM_RATIO 32.0
+
 #import "GameLayer.h"
-<<<<<<< HEAD
-#import "Box2D.h"
 #define kNumShips 100
-=======
-#define kNumShips 20
->>>>>>> parent of b12b71a... Tweaked reuploaded
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
@@ -26,12 +21,7 @@ int shots = 5;//Amount of shots you have.
 {
     if( (self=[super init]))
     {
-        b2Vec2 gravity = b2Vec2(0.0f, 0.0f);
-        bool doSleep = false;
-        _world = new b2World(gravity);
-        _world->SetAllowSleeping(doSleep);
-        _contactListener = new ContactListener();
-        _world->SetContactListener(_contactListener);
+        director = [CCDirector sharedDirector];
         [self initBG];
         batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ships.png"];
         [self addChild: batchNode];
@@ -41,56 +31,11 @@ int shots = 5;//Amount of shots you have.
         [self scheduleUpdate];
         [self spawnEnemyShip];
         [self spawnLasers];
-        [self schedule:@selector(tick:)];
         self.accelerometerEnabled = YES;
-        
+        self.touchEnabled = YES;
     }
     
     return self;
-}
-
-- (void)spriteDone:(id)sender {
-    
-    CCSprite *sprite = (CCSprite *)sender;
-    
-    b2Body *spriteBody = NULL;
-    for(b2Body *b = _world->GetBodyList(); b; b=b->GetNext()) {
-        if (b->GetUserData() != NULL) {
-            CCSprite *curSprite = (__bridge CCSprite *)b->GetUserData();
-            if (sprite == curSprite) {
-                spriteBody = b;
-                break;
-            }
-        }
-    }
-    if (spriteBody != NULL) {
-        _world->DestroyBody(spriteBody);
-    }
-    
-    [batchNode removeChild:sprite cleanup:YES];
-    
-}
-
-- (void)addBoxBodyForSprite:(CCSprite *)sprite
-{
-    
-    b2BodyDef spriteBodyDef;
-    spriteBodyDef.type = b2_dynamicBody;
-    spriteBodyDef.position.Set(sprite.position.x/PTM_RATIO,
-                               sprite.position.y/PTM_RATIO);
-    spriteBodyDef.userData = (__bridge void*)sprite;
-    b2Body *spriteBody = _world->CreateBody(&spriteBodyDef);
-    
-    b2PolygonShape spriteShape;
-    //spriteShape.SetAsBox(sprite.contentSize.width/PTM_RATIO/2,
-    //                     sprite.contentSize.height/PTM_RATIO/2);
-    
-    b2FixtureDef spriteShapeDef;
-    spriteShapeDef.shape = &spriteShape;
-    spriteShapeDef.density = 10.0;
-    spriteShapeDef.isSensor = true;
-    spriteBody->CreateFixture(&spriteShapeDef);
-    
 }
 
 -(void)initHUD
@@ -98,16 +43,13 @@ int shots = 5;//Amount of shots you have.
     scoreLabel = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
     shotsLabel = [CCLabelTTF labelWithString:@"Shots: 5" fontName:@"Arial" fontSize:24];
     lifeLabel = [CCLabelTTF labelWithString:@"Life: 3" fontName:@"Arial" fontSize:24];
-    distanceLabel = [CCLabelTTF labelWithString:@"" fontName:@"Arial" fontSize:24];
     lifeLabel.position =ccp(400,280);
     scoreLabel.position = ccp(400,310);
     shotsLabel.position = ccp(400,250);
-    distanceLabel.position = ccp(400,30);
     [self addChild:scoreLabel z:1];
     [self addChild:shotsLabel z:1];
     [self addChild:lifeLabel z:1];
-    [self addChild:distanceLabel z:1];
-
+    
 }
 
 -(void)initBG
@@ -124,8 +66,6 @@ int shots = 5;//Amount of shots you have.
     currentShip = [CCSprite spriteWithSpriteFrameName: @"WhitePlayerShip.png"];
     CGSize winSize = [CCDirector sharedDirector].winSize;
     currentShip.position = ccp(winSize.width*0.1, winSize.height * 0.5);
-    currentShip.tag = 1;
-    [self addBoxBodyForSprite:currentShip];
     [batchNode addChild: currentShip];
 }
 
@@ -144,8 +84,6 @@ int shots = 5;//Amount of shots you have.
             int color = 1;
             CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"WhiteShip.png"];
             enemy.visible = NO;
-            enemy.tag = 2;
-            [self addBoxBodyForSprite:enemy];
             [batchNode addChild:enemy];
             [_enemyShips addObject:enemy];
             [_enemyShipsColor addObject:[NSNumber numberWithInt:color]];
@@ -155,8 +93,6 @@ int shots = 5;//Amount of shots you have.
             int color = 2;
             CCSprite *enemy = [CCSprite spriteWithSpriteFrameName:@"BlackShip.png"];
             enemy.visible = NO;
-            enemy.tag = 2;
-            [self addBoxBodyForSprite:enemy];
             [batchNode addChild:enemy];
             [_enemyShips addObject:enemy];
             [_enemyShipsColor addObject:[NSNumber numberWithInt:color]];
@@ -216,6 +152,26 @@ int shots = 5;//Amount of shots you have.
     [lifeLabel setString:[NSString stringWithFormat:@"Life: %i", life]];
 }
 
+-(void) moveSpriteWithTouch:(UITouch*)touch
+{
+	CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
+    if(location.x - 100 < 30)
+    {
+        currentShip.position = CGPointMake(30, location.y);
+
+    }
+    
+}
+
+-(void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	[self moveSpriteWithTouch:[touches anyObject]];
+}
+
+-(void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	[self moveSpriteWithTouch:[touches anyObject]];
+}
 
 
 - (void)update:(ccTime)dt
@@ -227,7 +183,7 @@ int shots = 5;//Amount of shots you have.
     if ([KKInput sharedInput].anyTouchBeganThisFrame)
     {
         //Changes color if pressed on the left side of the screen.
-        if(pos.x < 240 )
+        if(pos.x > 180 && pos.y > 160)
         {
             
             if(ship == 1)
@@ -238,18 +194,18 @@ int shots = 5;//Amount of shots you have.
             else
             {
                 ship--;
-                [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];   
+                [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];
             }//changes to white
         }//end if to see if it will change color.
         //Shoots a laser if tapped on the right side of the screen.
-        else
+        else if(pos.x > 180 && pos.y < 160)
         {
             if(shots > 0)
             {
                 shots--;
                 [self updateHUD];
                 CGSize winSize = [CCDirector sharedDirector].winSize;
-        
+                
                 CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
                 _nextShipLaser++;
                 if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
@@ -261,14 +217,14 @@ int shots = 5;//Amount of shots you have.
                 {
                     [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackProjectile.png"]];
                 }//Changes the laser color to black.
-            
+                
                 shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
                 shipLaser.visible = YES;
                 [shipLaser stopAllActions];
                 [shipLaser runAction:[CCSequence actions:
-                              [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
-                              [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
-                              nil]];
+                                      [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
+                                      [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
+                                      nil]];
             }
             
         }//ends the else to see if it will shoot a laser.
@@ -288,20 +244,11 @@ int shots = 5;//Amount of shots you have.
     double curTime = CACurrentMediaTime();
     if (curTime > nextShipSpawn)
     {
-<<<<<<< HEAD
-        float randSecs = [self randomValueBetween:0.10 andValue:.50];
+        float randSecs = [self randomValueBetween:0.10 andValue:.15];
         nextShipSpawn = randSecs + curTime;
         
         float randY = [self randomValueBetween:0.0 andValue:winSize.height];
-        float randDuration = [self randomValueBetween:(2.0) andValue:(10.0)];
-=======
-        
-        float randSecs = [self randomValueBetween:0.20 andValue:.50];
-        nextShipSpawn = randSecs + curTime;
-        
-        float randY = [self randomValueBetween:0.0 andValue:winSize.height];
-        float randDuration = [self randomValueBetween:1.0 andValue:3.0];
->>>>>>> parent of b12b71a... Tweaked reuploaded
+        float randDuration = [self randomValueBetween:(5.0) andValue:(10.0)];
         
         CCSprite *enemy = [_enemyShips objectAtIndex:nextShip];
         nextShip++;
@@ -311,20 +258,20 @@ int shots = 5;//Amount of shots you have.
         enemy.position = ccp(winSize.width+enemy.contentSize.width/2, randY);
         enemy.visible = YES;
         [enemy runAction:[CCSequence actions:
-                             [CCMoveBy actionWithDuration:randDuration position:ccp(-winSize.width-enemy.contentSize.width, 0)],
-                             [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
-                             nil]];
+                          [CCMoveBy actionWithDuration:randDuration position:ccp(-winSize.width-enemy.contentSize.width, 0)],
+                          [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
+                          nil]];
     }//ends if for spawning enemies.
     
     //Collision
     for (CCSprite *enemy in _enemyShips)
     {
         if (!enemy.visible) continue;
-    
+        
         for (CCSprite *shipLaser in _shipLasers)
         {
             if (!shipLaser.visible) continue;
-        
+            
             if (CGRectIntersectsRect(shipLaser.boundingBox, enemy.boundingBox))
             {
                 shipLaser.visible = NO;
@@ -334,7 +281,7 @@ int shots = 5;//Amount of shots you have.
                 continue;
             }//end if to see if the laser hits the enemy.
         }//end for to see if theres any lasers being shot.
-    
+        
         if (CGRectIntersectsRect(currentShip.boundingBox, enemy.boundingBox))
         {
             enemy.visible = NO;
@@ -356,59 +303,6 @@ int shots = 5;//Amount of shots you have.
         }//end if to see if player ship collides with enemys
     }//end for loop for collision
 }//ends the update
-
-- (void)tick:(ccTime)dt
-{
-    
-    _world->Step(dt, 10, 10);
-    for(b2Body *b = _world->GetBodyList(); b; b=b->GetNext())
-    {
-        if (b->GetUserData() != NULL)
-        {
-            CCSprite *sprite = (__bridge CCSprite *)b->GetUserData();
-            
-            b2Vec2 b2Position = b2Vec2(sprite.position.x/PTM_RATIO,
-                                       sprite.position.y/PTM_RATIO);
-            float32 b2Angle = -1 * CC_DEGREES_TO_RADIANS(sprite.rotation);
-            
-            b->SetTransform(b2Position, b2Angle);
-        }
-    }
-        
-        b2Body *bodyA = contact.fixtureA->GetBody();
-        b2Body *bodyB = contact.fixtureB->GetBody();
-        if (bodyA->GetUserData() != NULL && bodyB->GetUserData() != NULL) {
-            CCSprite *spriteA = (CCSprite *) bodyA->GetUserData();
-            CCSprite *spriteB = (CCSprite *) bodyB->GetUserData();
-            
-            if (spriteA.tag == 1 && spriteB.tag == 2) {
-                toDestroy.push_back(bodyA);
-            } else if (spriteA.tag == 2 && spriteB.tag == 1) {
-                toDestroy.push_back(bodyB);
-            }
-        }
-    }
-    
-    std::vector<b2Body *>::iterator pos2;
-    for(pos2 = toDestroy.begin(); pos2 != toDestroy.end(); ++pos2) {
-        b2Body *body = *pos2;
-        if (body->GetUserData() != NULL) {
-            CCSprite *sprite = (CCSprite *) body->GetUserData();
-            [_spriteSheet removeChild:sprite cleanup:YES];
-        }
-        _world->DestroyBody(body);
-    }
-    
-    
-}
-
-- (void)dealloc {
-    
-    delete _world;
-    delete _contactListener;
-    [batchNode release];
-    [super dealloc];
-}
 
 - (void)setInvisible:(CCNode *)node
 {
