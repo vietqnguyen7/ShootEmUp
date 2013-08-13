@@ -9,10 +9,12 @@
 #import "GameLayer.h"
 #define kNumShips 100
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
-int kNumLasers = 15;// Number of lasers in array, able to appear on screen.
+int kNumLasers = 50;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
 int life = 3;//Amount of life you have.
 int shots = 5;//Amount of shots you have.
+double nextSpawnTime = .01;
+int nextIncrement = points;
 
 
 @implementation GameLayer
@@ -130,15 +132,71 @@ int shots = 5;//Amount of shots you have.
 	CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
     if(location.x - 100 < 30)
     {
-        currentShip.position = CGPointMake(30, location.y);
-
+        currentShip.position = CGPointMake(70, location.y);
     }
-    
+}
+
+-(void) changeShipColorWithTouch:(UITouch*)touch
+{
+    CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
+    if(location.x > 180 && location.y > 160)
+    {
+        
+        if(ship == 1)
+        {
+            ship++;
+            [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackPlayerShip.png"]];
+        }//changes to black
+        else
+        {
+            ship--;
+            [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];
+        }//changes to white
+    }//end if to see if it will change color.
+}
+-(void) shootLasersWithTouch:(UITouch*)touch
+{
+    CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
+    if(location.x > 180 && location.y < 160)
+    {
+        if(shots > 0)
+        {
+            shots--;
+            [self updateHUD];
+            CGSize winSize = [CCDirector sharedDirector].winSize;
+            
+            CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
+            _nextShipLaser++;
+            if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
+            if(ship == 1)
+            {
+                [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhiteProjectile.png"]];
+            }//Changes the laser color to white.
+            else
+            {
+                [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackProjectile.png"]];
+            }//Changes the laser color to black.
+            
+            shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
+            shipLaser.visible = YES;
+            [shipLaser stopAllActions];
+            [shipLaser runAction:[CCSequence actions:
+                                  [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
+                                  [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
+                                  nil]];
+        }
+    }//ends the else to see if it will shoot a laser.
 }
 
 -(void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
 	[self moveSpriteWithTouch:[touches anyObject]];
+}
+
+-(void) ccTouchEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [self changeShipColorWithTouch:[touches anyObject]];
+    [self shootLasersWithTouch:[touches anyObject]];
 }
 
 -(void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -211,11 +269,16 @@ int shots = 5;//Amount of shots you have.
     double curTime = CACurrentMediaTime();
     if (curTime > nextShipSpawn)
     {
-        float randSecs = [self randomValueBetween:0.10 andValue:.15];
+        if(points == nextIncrement)
+        {
+            nextSpawnTime +=.05;
+            nextIncrement = points + 100;
+        }
+        float randSecs = [self randomValueBetween:0.4 andValue:.6-nextSpawnTime];
         nextShipSpawn = randSecs + curTime;
         
         float randY = [self randomValueBetween:0.0 andValue:winSize.height];
-        float randDuration = [self randomValueBetween:(5.0) andValue:(10.0)];
+        float randDuration = [self randomValueBetween:(8.0) andValue:(10.0)];
         
         CCSprite *enemy = [_enemyShips objectAtIndex:nextShip];
         nextShip++;
@@ -263,7 +326,7 @@ int shots = 5;//Amount of shots you have.
             else
             {
                 life--;
-                points-=300;
+            //    points-=300;
                 [self updateHUD];
             }
             
