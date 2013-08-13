@@ -24,6 +24,8 @@ int nextIncrement = points;
     if( (self=[super init]))
     {
         director = [CCDirector sharedDirector];
+        CGSize size = [[CCDirector sharedDirector] winSize];
+		CGPoint center = CGPointMake(size.width / 2, size.height / 2);
         [self initBG];
         batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ships.png"];
         [self addChild: batchNode];
@@ -207,62 +209,6 @@ int nextIncrement = points;
 
 - (void)update:(ccTime)dt
 {
-    //Changes ship color if pressed on left. If on right then shoots a laser.
-    KKInput* input = [KKInput sharedInput];
-    CGPoint pos = [input locationOfAnyTouchInPhase:KKTouchPhaseAny];
-    
-    if ([KKInput sharedInput].anyTouchBeganThisFrame)
-    {
-        //Changes color if pressed on the left side of the screen.
-        if(pos.x > 180 && pos.y > 160)
-        {
-            
-            if(ship == 1)
-            {
-                ship++;
-                [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackPlayerShip.png"]];
-            }//changes to black
-            else
-            {
-                ship--;
-                [currentShip setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhitePlayerShip.png"]];
-            }//changes to white
-        }//end if to see if it will change color.
-        //Shoots a laser if tapped on the right side of the screen.
-        else if(pos.x > 180 && pos.y < 160)
-        {
-            if(shots > 0)
-            {
-                shots--;
-                [self updateHUD];
-                CGSize winSize = [CCDirector sharedDirector].winSize;
-                
-                CCSprite *shipLaser = [_shipLasers objectAtIndex:_nextShipLaser];
-                _nextShipLaser++;
-                if (_nextShipLaser >= _shipLasers.count) _nextShipLaser = 0;
-                if(ship == 1)
-                {
-                    [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"WhiteProjectile.png"]];
-                }//Changes the laser color to white.
-                else
-                {
-                    [shipLaser setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"BlackProjectile.png"]];
-                }//Changes the laser color to black.
-                
-                shipLaser.position = ccpAdd(currentShip.position, ccp(shipLaser.contentSize.width/2, 0));
-                shipLaser.visible = YES;
-                [shipLaser stopAllActions];
-                [shipLaser runAction:[CCSequence actions:
-                                      [CCMoveBy actionWithDuration:0.5 position:ccp(winSize.width, 0)],
-                                      [CCCallFuncN actionWithTarget:self selector:@selector(setInvisible:)],
-                                      nil]];
-            }
-            
-        }//ends the else to see if it will shoot a laser.
-    }//Ends the touch phase
-    
-    
-    //Updates the ships location.
     CGSize winSize = [CCDirector sharedDirector].winSize;
     
     //Spawns the Enemy.
