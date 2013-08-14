@@ -25,8 +25,9 @@ int nextIncrement = points;
     {
         director = [CCDirector sharedDirector];
         CGSize size = [[CCDirector sharedDirector] winSize];
-		CGPoint center = CGPointMake(size.width / 2, size.height / 2);
+        CGPoint center = CGPointMake(size.width / 2, size.height / 2);
         [self initBG];
+        [self initTutorial];
         batchNode = [CCSpriteBatchNode batchNodeWithFile: @"Ships.png"];
         [self addChild: batchNode];
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile: @"Ships.plist"];
@@ -54,6 +55,22 @@ int nextIncrement = points;
     [self addChild:shotsLabel z:1];
     [self addChild:lifeLabel z:1];
     
+}
+
+-(void)initTutorial
+{
+    tutorialLabel = [CCLabelTTF labelWithString:@"Drag ship to move" fontName:@"Arial" fontSize:15];
+    tutorialLabel1 = [CCLabelTTF labelWithString:@"Tap here to shoot" fontName:@"Arial" fontSize:15];
+    tutorialLabel2 = [CCLabelTTF labelWithString:@"Tap here to change ship color" fontName:@"Arial" fontSize:15];
+    tutorialLabel.position =ccp(60,140);
+    tutorialLabel1.position = ccp(350,30);
+    tutorialLabel2.position = ccp(350,220);
+    [tutorialLabel runAction:[CCSequence actions: [CCFadeOut actionWithDuration:10.0f], nil]];
+    [tutorialLabel1 runAction:[CCSequence actions: [CCFadeOut actionWithDuration:10.0f], nil]];
+    [tutorialLabel2 runAction:[CCSequence actions: [CCFadeOut actionWithDuration:10.0f], nil]];
+    [self addChild: tutorialLabel z:1];
+    [self addChild: tutorialLabel1 z:1];
+    [self addChild: tutorialLabel2 z:1];
 }
 
 -(void)initBG
@@ -131,7 +148,7 @@ int nextIncrement = points;
 
 -(void) moveSpriteWithTouch:(UITouch*)touch
 {
-	CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
+    CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
     if(location.x - 100 < 30)
     {
         currentShip.position = CGPointMake(70, location.y);
@@ -192,7 +209,9 @@ int nextIncrement = points;
 
 -(void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	[self moveSpriteWithTouch:[touches anyObject]];
+    [self moveSpriteWithTouch:[touches anyObject]];
+    [self changeShipColorWithTouch:[touches anyObject]];
+    [self shootLasersWithTouch:[touches anyObject]];
 }
 
 -(void) ccTouchEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -203,7 +222,7 @@ int nextIncrement = points;
 
 -(void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	[self moveSpriteWithTouch:[touches anyObject]];
+    [self moveSpriteWithTouch:[touches anyObject]];
 }
 
 
@@ -272,7 +291,7 @@ int nextIncrement = points;
             else
             {
                 life--;
-            //    points-=300;
+                //    points-=300;
                 [self updateHUD];
             }
             

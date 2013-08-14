@@ -7,6 +7,8 @@
 //
 
 #import "CCLayer.h"
+#import "Box2D.h"
+#import "GLES-Render.h"
 @interface GameLayer : CCLayer
 {
     CCSprite *currentShip;
@@ -23,7 +25,12 @@
     CCLabelTTF *shotsLabel;
     CCLabelTTF *lifeLabel;
     CCLabelTTF *distanceLabel;
+    CCLabelTTF *tutorialLabel;
+    CCLabelTTF *tutorialLabel1;
+    CCLabelTTF *tutorialLabel2;
     CCDirector* director;
+    b2World *_world;
+    GLESDebugDraw *_debugDraw;
 
 }
 
