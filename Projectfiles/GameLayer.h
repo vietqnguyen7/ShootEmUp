@@ -31,6 +31,7 @@
     CCDirector* director;
     b2World *_world;
     GLESDebugDraw *_debugDraw;
+    NSUserDefaults *defaults;
 
 }
 

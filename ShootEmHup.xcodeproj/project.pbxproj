@@ -10,6 +10,9 @@
 		31A0C6C017B4082E005D25B8 /* tempbackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 31A0C6BF17B4082E005D25B8 /* tempbackground.png */; };
 		31A3D22617B2C4E40028F39F /* Ships.plist in Resources */ = {isa = PBXBuildFile; fileRef = 31A3D22417B2C4E40028F39F /* Ships.plist */; };
 		31A3D22717B2C4E40028F39F /* Ships.png in Resources */ = {isa = PBXBuildFile; fileRef = 31A3D22517B2C4E40028F39F /* Ships.png */; };
+		31A5C60E17BD5466003B26CE /* MainMenu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31A5C60D17BD5466003B26CE /* MainMenu.mm */; };
+		31A5C61017BD5684003B26CE /* menu-button.png in Resources */ = {isa = PBXBuildFile; fileRef = 31A5C60F17BD5684003B26CE /* menu-button.png */; };
+		31A5C61317BD5A09003B26CE /* HighScore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31A5C61217BD5A09003B26CE /* HighScore.mm */; };
 		31C2E8EB17AAFAF4000194DF /* Ikaruga.plist in Resources */ = {isa = PBXBuildFile; fileRef = 31C2E8E917AAFAF4000194DF /* Ikaruga.plist */; };
 		31C2E8EC17AAFAF4000194DF /* Ikaruga.png in Resources */ = {isa = PBXBuildFile; fileRef = 31C2E8EA17AAFAF4000194DF /* Ikaruga.png */; };
 		31C2E8F017AAFB52000194DF /* GameLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31C2E8EF17AAFB52000194DF /* GameLayer.mm */; };
@@ -71,6 +74,11 @@
 		31A0C6BF17B4082E005D25B8 /* tempbackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tempbackground.png; sourceTree = "<group>"; };
 		31A3D22417B2C4E40028F39F /* Ships.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Ships.plist; sourceTree = "<group>"; };
 		31A3D22517B2C4E40028F39F /* Ships.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Ships.png; sourceTree = "<group>"; };
+		31A5C60C17BD5466003B26CE /* MainMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainMenu.h; sourceTree = "<group>"; };
+		31A5C60D17BD5466003B26CE /* MainMenu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainMenu.mm; sourceTree = "<group>"; };
+		31A5C60F17BD5684003B26CE /* menu-button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-button.png"; sourceTree = "<group>"; };
+		31A5C61117BD5A08003B26CE /* HighScore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HighScore.h; sourceTree = "<group>"; };
+		31A5C61217BD5A09003B26CE /* HighScore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HighScore.mm; sourceTree = "<group>"; };
 		31C2E8E917AAFAF4000194DF /* Ikaruga.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Ikaruga.plist; sourceTree = "<group>"; };
 		31C2E8EA17AAFAF4000194DF /* Ikaruga.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Ikaruga.png; sourceTree = "<group>"; };
 		31C2E8EE17AAFB52000194DF /* GameLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameLayer.h; sourceTree = "<group>"; };
@@ -282,6 +290,8 @@
 		DCC1A38C13A94F1A005BD75D /* Projectfiles */ = {
 			isa = PBXGroup;
 			children = (
+				31A5C60C17BD5466003B26CE /* MainMenu.h */,
+				31A5C60D17BD5466003B26CE /* MainMenu.mm */,
 				31C2E8ED17AAFB28000194DF /* Box2D */,
 				DCC1A38D13A94F1A005BD75D /* AppDelegate.h */,
 				DCC1A38E13A94F1A005BD75D /* AppDelegate.m */,
@@ -289,6 +299,8 @@
 				DCC1A3CF13A94F2C005BD75D /* Supporting Files */,
 				31C2E8EE17AAFB52000194DF /* GameLayer.h */,
 				31C2E8EF17AAFB52000194DF /* GameLayer.mm */,
+				31A5C61117BD5A08003B26CE /* HighScore.h */,
+				31A5C61217BD5A09003B26CE /* HighScore.mm */,
 			);
 			path = Projectfiles;
 			sourceTree = "<group>";
@@ -296,6 +308,7 @@
 		DCC1A39413A94F1A005BD75D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				31A5C60F17BD5684003B26CE /* menu-button.png */,
 				31A0C6BF17B4082E005D25B8 /* tempbackground.png */,
 				31A3D22417B2C4E40028F39F /* Ships.plist */,
 				31A3D22517B2C4E40028F39F /* Ships.png */,
@@ -419,6 +432,7 @@
 				31A3D22617B2C4E40028F39F /* Ships.plist in Resources */,
 				31A3D22717B2C4E40028F39F /* Ships.png in Resources */,
 				31A0C6C017B4082E005D25B8 /* tempbackground.png in Resources */,
+				31A5C61017BD5684003B26CE /* menu-button.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +465,8 @@
 				DC193EBC13B6956F00500B56 /* ContactListener.mm in Sources */,
 				DC2A3EC4149A30B400EF78B0 /* Box2DDebugLayer.mm in Sources */,
 				31C2E8F017AAFB52000194DF /* GameLayer.mm in Sources */,
+				31A5C60E17BD5466003B26CE /* MainMenu.mm in Sources */,
+				31A5C61317BD5A09003B26CE /* HighScore.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

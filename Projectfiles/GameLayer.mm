@@ -7,6 +7,9 @@
 //
 
 #import "GameLayer.h"
+#import "MainMenu.h"
+#import "HighScore.h"
+
 #define kNumShips 100
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 50;// Number of lasers in array, able to appear on screen.
@@ -43,6 +46,7 @@ int nextIncrement = points;
     return self;
 }
 
+//Initialized the HUD
 -(void)initHUD
 {
     scoreLabel = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
@@ -55,8 +59,9 @@ int nextIncrement = points;
     [self addChild:shotsLabel z:1];
     [self addChild:lifeLabel z:1];
     
-}
+}//end initHUD
 
+//Initializes the tutorial
 -(void)initTutorial
 {
     tutorialLabel = [CCLabelTTF labelWithString:@"Drag ship to move" fontName:@"Arial" fontSize:15];
@@ -71,15 +76,16 @@ int nextIncrement = points;
     [self addChild: tutorialLabel z:1];
     [self addChild: tutorialLabel1 z:1];
     [self addChild: tutorialLabel2 z:1];
-}
+}//end tutorial
 
+//Initializes the background
 -(void)initBG
 {
     CGSize winSize = [[CCDirector sharedDirector] winSize];
     CCSprite *background = [CCSprite spriteWithFile:@"tempbackground.png"];
     background.position = ccp(winSize.width/2, winSize.height/2);
     [self addChild:background];
-}
+}//end background
 
 //Spawns the player's Ship
 -(void)spawnShip
@@ -88,7 +94,7 @@ int nextIncrement = points;
     CGSize winSize = [CCDirector sharedDirector].winSize;
     currentShip.position = ccp(winSize.width*0.1, winSize.height * 0.5);
     [batchNode addChild: currentShip];
-}
+}//end spawnship
 
 
 //Spawns all the enemies.
@@ -146,6 +152,31 @@ int nextIncrement = points;
     [lifeLabel setString:[NSString stringWithFormat:@"Life: %i", life]];
 }
 
+-(void)gameOver
+{
+    NSLog(@"Resets game and goes back to Main Menu");
+    
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSMutableArray *highScores = [NSMutableArray arrayWithArray:[defaults arrayForKey:@"scores"]];
+    for(int i = 0; i < [highScores count]; i++)
+    {
+        if(points > [[highScores objectAtIndex:i] intValue])
+        {
+            [highScores insertObject:[NSNumber numberWithInt:points] atIndex:i];
+            [highScores removeLastObject];
+            [defaults setObject:highScores forKey:@"scores"];
+            [defaults synchronize];
+            break;
+        }
+    }
+    [_enemyShips removeAllObjects];
+    [_enemyShipsColor removeAllObjects];
+    points = 0;
+    life = 3;
+    shots = 5;
+    [[CCDirector sharedDirector] replaceScene: (CCScene*)[[MainMenu alloc] init]];
+}
+
 -(void) moveSpriteWithTouch:(UITouch*)touch
 {
     CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
@@ -173,6 +204,7 @@ int nextIncrement = points;
         }//changes to white
     }//end if to see if it will change color.
 }
+
 -(void) shootLasersWithTouch:(UITouch*)touch
 {
     CGPoint location = [director convertToGL:[touch locationInView:director.openGLView]];
@@ -210,12 +242,6 @@ int nextIncrement = points;
 -(void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self moveSpriteWithTouch:[touches anyObject]];
-    [self changeShipColorWithTouch:[touches anyObject]];
-    [self shootLasersWithTouch:[touches anyObject]];
-}
-
--(void) ccTouchEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
     [self changeShipColorWithTouch:[touches anyObject]];
     [self shootLasersWithTouch:[touches anyObject]];
 }
@@ -291,8 +317,12 @@ int nextIncrement = points;
             else
             {
                 life--;
-                //    points-=300;
+                points-=300;
                 [self updateHUD];
+                if(life == 0)
+                {
+                    [self gameOver];
+                }
             }
             
         }//end if to see if player ship collides with enemys
