@@ -10,14 +10,17 @@
 #import "MainMenu.h"
 #import "HighScore.h"
 
-#define kNumShips 100
+#define kNumShips 1000
 int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 50;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
 int life = 3;//Amount of life you have.
 int shots = 5;//Amount of shots you have.
-double nextSpawnTime = .01;
-int nextIncrement = points;
+double nextSpawnTime = 0; //duration for start of the value of random for spawn time.
+double startSpawnTime = 0.6;//duration for start of the value of random for spawn time.
+double endSpawnTime = 0.8;//duration for end of the value of random for spawn time.
+double startSpeedTime = 5;//start speed
+double endSpeedTime = 7;//end speed
 
 
 @implementation GameLayer
@@ -49,30 +52,37 @@ int nextIncrement = points;
 //Initialized the HUD
 -(void)initHUD
 {
-    scoreLabel = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:24];
-    shotsLabel = [CCLabelTTF labelWithString:@"Shots: 5" fontName:@"Arial" fontSize:24];
-    lifeLabel = [CCLabelTTF labelWithString:@"Life: 3" fontName:@"Arial" fontSize:24];
-    lifeLabel.position =ccp(400,280);
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *currentHighScore = [defaults objectForKey:@"highScore"];
+    int hs = [currentHighScore intValue];
+    scoreLabel = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:18];
+    shotsLabel = [CCLabelTTF labelWithString:@"Shots: 5" fontName:@"Arial" fontSize:18];
+    lifeLabel = [CCLabelTTF labelWithString:@"Life: 3" fontName:@"Arial" fontSize:18];
+    highScoreLabel = [CCLabelTTF labelWithString:@"High Score:" fontName:@"Arial" fontSize:14];
+    [highScoreLabel setString:[NSString stringWithFormat:@"HighScore: %i", hs]];
+    lifeLabel.position =ccp(400,290);
     scoreLabel.position = ccp(400,310);
-    shotsLabel.position = ccp(400,250);
+    shotsLabel.position = ccp(400,270);
+    highScoreLabel.position = ccp(200,310);
     [self addChild:scoreLabel z:1];
     [self addChild:shotsLabel z:1];
     [self addChild:lifeLabel z:1];
+    [self addChild:highScoreLabel z:1];
     
 }//end initHUD
 
 //Initializes the tutorial
 -(void)initTutorial
 {
-    tutorialLabel = [CCLabelTTF labelWithString:@"Drag ship to move" fontName:@"Arial" fontSize:15];
+    tutorialLabel = [CCLabelTTF labelWithString:@"Drag to move" fontName:@"Arial" fontSize:15];
     tutorialLabel1 = [CCLabelTTF labelWithString:@"Tap here to shoot" fontName:@"Arial" fontSize:15];
-    tutorialLabel2 = [CCLabelTTF labelWithString:@"Tap here to change ship color" fontName:@"Arial" fontSize:15];
+    tutorialLabel2 = [CCLabelTTF labelWithString:@"Tap here to change color" fontName:@"Arial" fontSize:15];
     tutorialLabel.position =ccp(60,140);
     tutorialLabel1.position = ccp(350,30);
     tutorialLabel2.position = ccp(350,220);
-    [tutorialLabel runAction:[CCSequence actions: [CCFadeOut actionWithDuration:10.0f], nil]];
-    [tutorialLabel1 runAction:[CCSequence actions: [CCFadeOut actionWithDuration:10.0f], nil]];
-    [tutorialLabel2 runAction:[CCSequence actions: [CCFadeOut actionWithDuration:10.0f], nil]];
+    [tutorialLabel runAction:[CCSequence actions: [CCFadeOut actionWithDuration:15.0f], nil]];
+    [tutorialLabel1 runAction:[CCSequence actions: [CCFadeOut actionWithDuration:15.0f], nil]];
+    [tutorialLabel2 runAction:[CCSequence actions: [CCFadeOut actionWithDuration:15.0f], nil]];
     [self addChild: tutorialLabel z:1];
     [self addChild: tutorialLabel1 z:1];
     [self addChild: tutorialLabel2 z:1];
@@ -90,6 +100,7 @@ int nextIncrement = points;
 //Spawns the player's Ship
 -(void)spawnShip
 {
+    ship = 1;
     currentShip = [CCSprite spriteWithSpriteFrameName: @"WhitePlayerShip.png"];
     CGSize winSize = [CCDirector sharedDirector].winSize;
     currentShip.position = ccp(winSize.width*0.1, winSize.height * 0.5);
@@ -157,23 +168,19 @@ int nextIncrement = points;
     NSLog(@"Resets game and goes back to Main Menu");
     
     NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    NSMutableArray *highScores = [NSMutableArray arrayWithArray:[defaults arrayForKey:@"scores"]];
-    for(int i = 0; i < [highScores count]; i++)
+    NSNumber *currentHighScore = [defaults objectForKey:@"highScore"];
+    int hs = [currentHighScore intValue];
+    if(hs < points)
     {
-        if(points > [[highScores objectAtIndex:i] intValue])
-        {
-            [highScores insertObject:[NSNumber numberWithInt:points] atIndex:i];
-            [highScores removeLastObject];
-            [defaults setObject:highScores forKey:@"scores"];
-            [defaults synchronize];
-            break;
-        }
+        NSNumber *highScore = [NSNumber numberWithInteger:points];
+        [[NSUserDefaults standardUserDefaults] setObject:highScore forKey:@"highScore"];
     }
     [_enemyShips removeAllObjects];
     [_enemyShipsColor removeAllObjects];
     points = 0;
     life = 3;
     shots = 5;
+    nextShipSpawn = 0;
     [[CCDirector sharedDirector] replaceScene: (CCScene*)[[MainMenu alloc] init]];
 }
 
@@ -260,16 +267,11 @@ int nextIncrement = points;
     double curTime = CACurrentMediaTime();
     if (curTime > nextShipSpawn)
     {
-        if(points == nextIncrement)
-        {
-            nextSpawnTime +=.05;
-            nextIncrement = points + 100;
-        }
-        float randSecs = [self randomValueBetween:0.4 andValue:.6-nextSpawnTime];
+        float randSecs = [self randomValueBetween:startSpawnTime andValue:endSpawnTime];
         nextShipSpawn = randSecs + curTime;
         
-        float randY = [self randomValueBetween:0.0 andValue:winSize.height];
-        float randDuration = [self randomValueBetween:(8.0) andValue:(10.0)];
+        float randY = [self randomValueBetween:20.0 andValue:winSize.height-20];
+        float randDuration = [self randomValueBetween:startSpeedTime andValue:endSpeedTime];
         
         CCSprite *enemy = [_enemyShips objectAtIndex:nextShip];
         nextShip++;
@@ -317,9 +319,8 @@ int nextIncrement = points;
             else
             {
                 life--;
-                points-=300;
                 [self updateHUD];
-                if(life == 0)
+                if(life <= 0)
                 {
                     [self gameOver];
                 }

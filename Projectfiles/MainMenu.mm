@@ -27,7 +27,7 @@
                                                                target:self
                                                              selector:@selector(doSomethingTwo:)];
     
-    CCMenu * myMenu = [CCMenu menuWithItems:menuItem1,menuItem2, nil];
+    CCMenu * myMenu = [CCMenu menuWithItems:menuItem1, nil];
     [myMenu alignItemsVertically];
     
     // add the menu to your scene

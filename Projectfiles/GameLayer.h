@@ -28,6 +28,7 @@
     CCLabelTTF *tutorialLabel;
     CCLabelTTF *tutorialLabel1;
     CCLabelTTF *tutorialLabel2;
+    CCLabelTTF *highScoreLabel;
     CCDirector* director;
     b2World *_world;
     GLESDebugDraw *_debugDraw;
