@@ -15,7 +15,7 @@ int ship = 1; //Determines the player's Color. White = 1. Black = 2.
 int kNumLasers = 50;// Number of lasers in array, able to appear on screen.
 int points = 0;//Total points gained.
 int life = 5;//Amount of life you have.
-int shots = 5;//Amount of shots you have.
+int shots = 50;//Amount of shots you have.
 double nextSpawnTime = 0; //duration for start of the value of random for spawn time.
 double startSpawnTime = 0.6;//duration for start of the value of random for spawn time.
 double endSpawnTime = 0.8;//duration for end of the value of random for spawn time.
@@ -167,19 +167,19 @@ int roundNumber = 1;
     [roundLabel setString:[NSString stringWithFormat:@"Wave: %d", roundNumber]];
     roundNumber+=1;
     startSpawnTime = 0.1;//duration for start of the value of random for spawn time.
-    endSpawnTime = 0.3;//duration for end of the value of random for spawn time.
-    startSpeedTime = 7;//start speed
-    endSpeedTime = 10;//end speed
+    endSpawnTime = 0.2;//duration for end of the value of random for spawn time.
+    startSpeedTime = 6;//start speed
+    endSpeedTime = 8;//end speed
 }
 
 -(void)endWave
 {
     [roundLabel setString:[NSString stringWithFormat:@"Prep Round", roundNumber]];
     nextIncrement -= .03;
-    startSpawnTime = 0.5 - nextIncrement;;//duration for start of the value of random for spawn time.
-    endSpawnTime = 0.8 - nextIncrement;//duration for end of the value of random for spawn time.
-    startSpeedTime = 4.5 - nextIncrement;//start speed
-    endSpeedTime = 7 - nextIncrement;//end speed
+    startSpawnTime = 0.45 - nextIncrement;;//duration for start of the value of random for spawn time.
+    endSpawnTime = 0.65 - nextIncrement;//duration for end of the value of random for spawn time.
+    startSpeedTime = 3.5 - nextIncrement;//start speed
+    endSpeedTime = 6 - nextIncrement;//end speed
 }
 
 -(void)roundTransition
@@ -372,7 +372,7 @@ int roundNumber = 1;
             NSInteger colorOfEnemy = [[_enemyShipsColor objectAtIndex:(enemyInt)] integerValue];
             if(ship == colorOfEnemy)
             {
-                shots+=4;
+                shots+=3;
                 points+=100;
                 [self updateHUD];
                 [self roundTransition];
