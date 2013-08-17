@@ -228,6 +228,8 @@ int roundNumber = 1;
     endSpeedTime = 7;//end speed
     shipsAbsorbed = 0;
     shipsDestoryed = 0;
+    nextIncrementStartWave = 2000;
+    nextIncrementEndWave = 6000;
 }
 
 -(void)gameOver
