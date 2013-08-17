@@ -230,6 +230,7 @@ int roundNumber = 1;
     shipsDestoryed = 0;
     nextIncrementStartWave = 2000;
     nextIncrementEndWave = 6000;
+    roundNumber = 1;
 }
 
 -(void)gameOver
