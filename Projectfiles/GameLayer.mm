@@ -60,12 +60,15 @@ int roundNumber = 1;
     NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
     NSNumber *currentHighScore = [defaults objectForKey:@"highScore"];
     int hs = [currentHighScore intValue];
-    scoreLabel = [CCLabelTTF labelWithString:@"Score: 0" fontName:@"Arial" fontSize:15];
-    shotsLabel = [CCLabelTTF labelWithString:@"Shots: 5" fontName:@"Arial" fontSize:15];
-    lifeLabel = [CCLabelTTF labelWithString:@"Life: 3" fontName:@"Arial" fontSize:15];
+    scoreLabel = [CCLabelTTF labelWithString:@"Score:" fontName:@"Arial" fontSize:15];
+    shotsLabel = [CCLabelTTF labelWithString:@"Shots:" fontName:@"Arial" fontSize:15];
+    lifeLabel = [CCLabelTTF labelWithString:@"Life:" fontName:@"Arial" fontSize:15];
     roundLabel = [CCLabelTTF labelWithString:@"Prep Round" fontName:@"Arial" fontSize:18];
     highScoreLabel = [CCLabelTTF labelWithString:@"High Score:" fontName:@"Arial" fontSize:20];
     [highScoreLabel setString:[NSString stringWithFormat:@"HighScore: %i", hs]];
+    [scoreLabel setString:[NSString stringWithFormat:@"Score: %i", points]];
+    [shotsLabel setString:[NSString stringWithFormat:@"Shots: %i", shots]];
+    [lifeLabel setString:[NSString stringWithFormat:@"Life: %i", life]];
     roundLabel.position = ccp(50,310);
     lifeLabel.position =ccp(400,290);
     scoreLabel.position = ccp(400,310);
@@ -216,8 +219,8 @@ int roundNumber = 1;
     [_enemyShipsColor removeAllObjects];
     ship = 1; //Determines the player's Color. White = 1. Black = 2.
     points = 0;//Total points gained.
-    life = 3;//Amount of life you have.
-    shots = 5;//Amount of shots you have.
+    life = 5;//Amount of life you have.
+    shots = 50;//Amount of shots you have.
     nextSpawnTime = 0; //duration for start of the value of random for spawn time.
     startSpawnTime = 0.6;//duration for start of the value of random for spawn time.
     endSpawnTime = 0.8;//duration for end of the value of random for spawn time.
